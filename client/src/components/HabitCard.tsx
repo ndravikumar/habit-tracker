@@ -1,31 +1,31 @@
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
-import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { getHabitStats } from "@/api/habitApi";
 import { Check, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Props {
-  habit: { id: string; name: string; created_at: string };
+  habit: { id: string | number; name: string; created_at: string };
 }
 
 export default function HabitCard({ habit }: Props) {
-  const today = format(new Date(), "yyyy-MM-dd");
-
-  const { data: todayLog } = useQuery({
-    queryKey: ["habit-log-today", habit.id, today],
+  const { data } = useQuery({
+    queryKey: ["habit-stats", "dashboard"],
     queryFn: async () => {
-      const { data } = await supabase
-        .from("habit_logs")
-        .select("*")
-        .eq("habit_id", habit.id)
-        .eq("date", today)
-        .maybeSingle();
-      return data;
+      const response = await getHabitStats();
+
+      if (!("items" in response)) {
+        throw new Error("Unexpected stats response");
+      }
+
+      return response.items;
     },
+    staleTime: 30000,
   });
 
-  const isCompleted = todayLog?.completed ?? false;
+  const habitStats = data?.find((item) => item.habitId === Number(habit.id));
+  const isCompleted = habitStats?.completedToday ?? false;
 
   return (
     <Link
@@ -35,9 +35,7 @@ export default function HabitCard({ habit }: Props) {
       <div
         className={cn(
           "w-10 h-10 rounded-xl flex items-center justify-center transition-all shrink-0",
-          isCompleted
-            ? "habit-completed shadow-sm"
-            : "bg-secondary"
+          isCompleted ? "habit-completed shadow-sm" : "bg-secondary",
         )}
       >
         {isCompleted && <Check className="w-5 h-5" />}

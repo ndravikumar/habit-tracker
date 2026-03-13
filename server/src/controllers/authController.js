@@ -2,9 +2,28 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { createUser, findUserByEmail } = require("../models/userModel");
 
+function createAuthResponse(user) {
+  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+    expiresIn: "7d",
+  });
+
+  return {
+    token,
+    user: {
+      id: user.id,
+      email: user.email,
+      created_at: user.created_at,
+    },
+  };
+}
+
 const signup = async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required" });
+    }
 
     const existingUser = await findUserByEmail(email);
 
@@ -13,18 +32,21 @@ const signup = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
     const user = await createUser(email, hashedPassword);
 
-    res.json(user);
+    return res.status(201).json(createAuthResponse(user));
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return res.status(500).json({ message: error.message });
   }
 };
 
 const signin = async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required" });
+    }
 
     const user = await findUserByEmail(email);
 
@@ -38,13 +60,9 @@ const signin = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
-
-    res.json({ token });
+    return res.json(createAuthResponse(user));
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return res.status(500).json({ message: error.message });
   }
 };
 

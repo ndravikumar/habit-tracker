@@ -1,21 +1,19 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useProfile } from "@/hooks/useProfile";
 import { useHabits } from "@/hooks/useHabits";
 import AppLayout from "@/components/AppLayout";
 import UpgradeModal from "@/components/UpgradeModal";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, User, BarChart3 } from "lucide-react";
+import { BarChart3, Sparkles, User } from "lucide-react";
 
 export default function Settings() {
   const { user } = useAuth();
-  const { data: profile } = useProfile();
   const { habitsQuery } = useHabits();
   const [showUpgrade, setShowUpgrade] = useState(false);
 
-  const isPro = profile?.is_pro ?? false;
+  const isPro = false;
   const habitCount = habitsQuery.data?.length ?? 0;
 
   return (
@@ -23,7 +21,6 @@ export default function Settings() {
       <div className="max-w-2xl mx-auto space-y-6">
         <h1 className="text-2xl font-bold font-heading">Settings</h1>
 
-        {/* Account */}
         <Card className="glass-card">
           <CardHeader className="flex-row items-center gap-3 space-y-0">
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -47,7 +44,6 @@ export default function Settings() {
           </CardContent>
         </Card>
 
-        {/* Usage */}
         <Card className="glass-card">
           <CardHeader className="flex-row items-center gap-3 space-y-0">
             <div className="w-10 h-10 rounded-xl bg-success/10 flex items-center justify-center">
@@ -59,15 +55,17 @@ export default function Settings() {
           </CardHeader>
           <CardContent>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Active habits</span>
+              <span className="text-sm text-muted-foreground">
+                Active habits
+              </span>
               <span className="text-sm font-medium">
-                {habitCount}{!isPro && " / 25"}
+                {habitCount}
+                {!isPro && " / 25"}
               </span>
             </div>
           </CardContent>
         </Card>
 
-        {/* Upgrade */}
         {!isPro && (
           <Card className="border-accent/30 bg-accent/5">
             <CardContent className="flex items-center gap-4 py-6">
@@ -76,9 +74,14 @@ export default function Settings() {
               </div>
               <div className="flex-1">
                 <h3 className="font-heading font-semibold">Upgrade to Pro</h3>
-                <p className="text-sm text-muted-foreground">Unlimited habits and advanced features</p>
+                <p className="text-sm text-muted-foreground">
+                  Unlimited habits and advanced features
+                </p>
               </div>
-              <Button onClick={() => setShowUpgrade(true)} className="streak-badge border-0">
+              <Button
+                onClick={() => setShowUpgrade(true)}
+                className="streak-badge border-0"
+              >
                 Upgrade
               </Button>
             </CardContent>

@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
+import { Flame } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,7 +12,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Flame } from "lucide-react";
 
 export default function Auth() {
   const { user, signIn, signUp } = useAuth();
@@ -24,8 +24,8 @@ export default function Auth() {
 
   if (user) return <Navigate to="/" replace />;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
     setError("");
     setSuccess("");
     setLoading(true);
@@ -37,8 +37,9 @@ export default function Auth() {
     if (result.error) {
       setError(result.error.message);
     } else if (!isLogin) {
-      setSuccess("Check your email to confirm your account!");
+      setSuccess("Account created. Redirecting...");
     }
+
     setLoading(false);
   };
 
@@ -71,7 +72,7 @@ export default function Auth() {
                   id="email"
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(event) => setEmail(event.target.value)}
                   placeholder="you@example.com"
                   required
                 />
@@ -82,8 +83,8 @@ export default function Auth() {
                   id="password"
                   type="password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
+                  onChange={(event) => setPassword(event.target.value)}
+                  placeholder="********"
                   required
                   minLength={6}
                 />
